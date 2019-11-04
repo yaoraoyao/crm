@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.it.crm.mapper.SystemDictionaryItemMapper">
+    <resultMap id="systemDictionaryItem" type="systemDictionaryItem">
+        <id column="id" property="id" />
+        <result property="name" column="name"/>
+        <result property="sn" column="sn"/>
+        <result property="intro" column="intro"/>
+        <result property="tenantId" column="tenant_id"/>
+        <association property="parent" javaType="systemDictionary">
+            <id column="parent_id" property="id" />
+            <result column="t_name" property="name" />
+        </association>
+    </resultMap>
+
+    <insert id="save" parameterType="systemDictionaryItem">
+        INSERT INTO t_systemdictionaryitem (parent_id, sn, name, intro, tenant_id)
+                VALUES (#{parent.id}, #{sn}, #{name}, #{intro}, #{tenantId})
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM t_systemdictionaryitem WHERE id = #{id}
+    </delete>
+
+    <update id="update" parameterType="systemDictionaryItem">
+        UPDATE t_systemdictionaryitem
+        SET sn = #{sn}, name = #{name}, intro = #{intro},parent_id = #{parent.id}
+        WHERE id =  #{id}
+    </update>
+
+    <select id="findOne" resultMap="systemDictionaryItem">
+        select i.*, tsd.name t_name from t_systemdictionaryitem i
+            LEFT JOIN t_systemdictionary tsd
+                ON i.parent_id = tsd.id
+        WHERE i.id = #{id}
+    </select>
+
+    <select id="findAll" resultMap="systemDictionaryItem">
+        select i.* , tsd.name t_name
+        from t_systemdictionaryitem i
+            LEFT JOIN t_systemdictionary tsd
+                ON i.parent_id = tsd.id
+    </select>
+
+    <select id="findByQuery" parameterType="cn.it.crm.query.SystemDictionaryItemQuery"
+            resultMap="systemDictionaryItem">
+        select i.*, tsd.name t_name from t_systemdictionaryitem i
+        LEFT JOIN t_systemdictionary tsd
+        ON i.parent_id = tsd.id
+        <include refid="conditionSql" />
+        order by ${orderBy} ${order}
+    </select>
+
+    <sql id="conditionSql">
+        <where>
+            <if test="tenantId != null and tenantId > 0">
+                and i.tenant_id = #{tenantId}
+            </if>
+            <if test="parentId != null and parentId > 0">
+                and i.parent_id = #{parentId}
+            </if>
+            <if test="name != null and name != ''">
+                and i.name like concat("%",#{name},"%")
+            </if>
+        </where>
+    </sql>
+</mapper>

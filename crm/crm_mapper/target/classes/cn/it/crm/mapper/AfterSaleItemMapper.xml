@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.it.crm.mapper.AfterSaleItemMapper">
+    <resultMap id="allMap" type="AfterSaleItem">
+        <id column="id" property="id"></id>
+        <result column="repair_time" property="repairTime"/>
+        <result column="is_solve" property="isSolve"/>
+    </resultMap>
+    <select id="findAllBySn" resultMap="allMap">
+      SELECT * FROM t_after_sale_item WHERE sn=#{sn}
+    </select>
+
+    <insert id="save">
+        INSERT  INTO t_after_sale_item (
+        sn,
+        repair_time,
+        content,
+        is_solve
+        )VALUE (
+         #{sn},
+    #{repairTime},
+    #{ content},
+    #{isSolve}
+        )
+    </insert>
+    <update id="updata">
+        UPDATE t_after_sale_item SET is_solve =TRUE WHERE id=#{id}
+    </update>
+
+</mapper>

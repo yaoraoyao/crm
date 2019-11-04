@@ -1,0 +1,5 @@
+cn\itsource\ssm\domain\Department.class
+cn\itsource\ssm\mapper\DepartmentMapper.class
+cn\itsource\ssm\service\IDepartmentService.class
+cn\itsource\ssm\service\impl\DepartmentServiceImpl.class
+cn\itsource\ssm\web\controller\DepartmentController.class

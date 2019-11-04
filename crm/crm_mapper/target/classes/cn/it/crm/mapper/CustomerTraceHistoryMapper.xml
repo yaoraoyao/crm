@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.it.crm.mapper.CustomerTraceHistoryMapper">
+    <insert id="save">
+        INSERT INTO t_customer_trace_history (customer_id,traceUser_id,traceTime,traceType_id,
+        traceResult,title,remark,tenant_id)
+        VALUES (#{customer.id},#{traceUser.id},#{traceTime},#{traceType.id},
+        #{traceResult},#{title},#{remark},#{tenant.id});
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM t_customer_trace_history WHERE id = #{id}
+    </delete>
+
+    <update id="update">
+        UPDATE t_customer_trace_history SET customer_id=#{customer.id},traceUser_id=#{traceUser.id},
+        traceTime=#{traceTime},traceType_id=#{traceType.id},traceResult=#{traceResult},title=#{title},remark=#{remark}
+        WHERE id = #{id}
+    </update>
+
+    <!--嵌套查询单个-->
+    <resultMap id="CustomerTraceHistoryMap" type="CustomerTraceHistory">
+        <association property="customer" column="customer_id" select="findCustomer"/>
+        <association property="traceType" column="traceType_id" select="findOneSystemDictionaryItem"/>
+        <association property="traceUser" column="traceUser_id" select="findEmployee"/>
+        <association property="tenant" column="tenant_id" select="findTenant"/>
+    </resultMap>
+    <select id="findOne" resultMap="CustomerTraceHistoryMap">
+        SELECT * FROM t_customer_trace_history WHERE id = #{id}
+    </select>
+    <select id="findEmployee" resultType="Employee">
+        SELECT * FROM t_employee WHERE id = #{id}
+    </select>
+    <select id="findTenant" resultType="Tenant">
+        SELECT * FROM t_tenant WHERE id = #{id}
+    </select>
+    <select id="findCustomer" resultType="customer">
+        SELECT * FROM t_customer WHERE id = #{id}
+    </select>
+    <select id="findOneSystemDictionaryItem" resultType="SystemDictionaryItem">
+        SELECT * FROM t_systemdictionaryitem WHERE id = #{id}
+    </select>
+
+    <!--嵌套查询全部-->
+    <select id="findByQuery" resultMap="CustomerTraceHistoryMap">
+        SELECT * FROM t_customer_trace_history WHERE tenant_id = #{tenantId}
+        <if test="beginDate != null">
+            AND traceTime &gt;= #{beginDate}
+        </if>
+        <if test="endDate != null">
+            AND traceTime &lt; #{endDate}
+        </if>
+        <if test="customerName != null and customerName != ''">
+            AND customer_id IN (SELECT  c.id FROM t_customer c WHERE c.tenant_id=#{tenantId} AND c.name LIKE concat('%',#{customerName},'%'))
+        </if>
+        <if test="traceUserName != null and traceUserName != ''">
+            AND traceUser_id IN (SELECT  e.id FROM t_employee e WHERE e.tenant_id=#{tenantId} AND e.realname LIKE concat('%',#{traceUserName},'%'))
+        </if>
+        ORDER BY id DESC
+    </select>
+</mapper>

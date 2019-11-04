@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.janeluo:ik-analyzer:2012">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/janeluo/ik-analyzer/2012/ik-analyzer-2012.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/janeluo/ik-analyzer/2012/ik-analyzer-2012-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/janeluo/ik-analyzer/2012/ik-analyzer-2012-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

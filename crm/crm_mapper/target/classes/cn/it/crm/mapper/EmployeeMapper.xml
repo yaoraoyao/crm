@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.it.crm.mapper.EmployeeMapper">
+    <resultMap id="map" type="Employee">
+        <id column="id" property="id"></id>
+        <result property="username" column="username"></result>
+        <result property="realname" column="realname"></result>
+        <result property="password" column="password"></result>
+        <result property="tel" column="tel"></result>
+        <result property="email" column="email"></result>
+        <result property="state" column="state"></result>
+        <result property="tenant_id" column="tenant_id"></result>
+        <result property="department_id" column="department_id"></result>
+        <association property="tenant"
+                     javaType="Tenant"
+                     select="selectTenantById" column="tenant_id">
+        </association>
+
+
+        <association property="department" javaType="Department"
+                     select="selectDepartmentById" column="department_id">
+        </association>
+    </resultMap>
+    <select id="findByQuery" resultMap="map">
+        select * from t_employee
+        <include refid="Sql"/>
+        order by ${orderBy} ${order}
+    </select>
+    <sql id="Sql">
+        <where>
+            <if test="username!=null and username!=''">
+                and username like concat("%",#{username},"%")
+            </if>
+            <if test="beginTime!=null">
+                AND inputTime &gt;= #{beginTime}
+            </if>
+            <if test="endTime!=null">
+                AND inputTime &lt; #{endTime}
+            </if>
+        </where>
+    </sql>
+    <select id="selectTenantById" resultType="Tenant">
+        select t.companyName companyName from t_tenant t where id=#{id}
+    </select>
+
+
+    <select id="selectDepartmentById" resultType="Department">
+        select * from t_department where id=#{id}
+    </select>
+
+    <select id="findAll" resultType="Employee">
+        SELECT * FROM t_employee
+    </select>
+    <select id="findOne" resultType="Employee" parameterType="long">
+        SELECT * FROM t_employee WHERE id=#{id}
+    </select>
+
+    <insert id="save" parameterType="Employee">
+        INSERT INTO crm.t_employee (username, realname, password,tel,email,department_id,inputTime,state,tenant_id)
+        VALUES (#{username}, #{realname}, #{password},#{tel},#{email},#{department.id},#{inputTime},#{state},#{tenant_id})
+    </insert>
+    <update id="update" parameterType="Employee">
+        UPDATE t_employee SET username = #{username}, realname = #{realname}, password = #{password},tel = #{tel},email = #{email},department_id = #{department.id},inputTime=#{inputTime},state = #{state},tenant_id=#{tenant_id},openid =#{openid}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="long">
+        delete FROM t_employee WHERE id=#{id}
+    </delete>
+
+    <select id="findByUsernames" resultType="Employee">
+        select * from t_employee where username=#{username}
+    </select>
+    <select id="findByOpenid" resultType="Employee">
+        select * from t_employee where openid=#{openid}
+    </select>
+</mapper>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+namespace:
+必须和Mapper一致，就是说能够超链接过去
+-->
+<mapper namespace="cn.itsource.ssm.mapper.DepartmentMapper">
+
+    <!--List<Department> getAll();-->
+    <select id="getAll" resultType="Department">
+        SELECT  * from t_department
+
+    </select>
+
+</mapper>

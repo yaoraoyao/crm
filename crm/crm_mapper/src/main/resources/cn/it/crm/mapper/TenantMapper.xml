@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.it.crm.mapper.TenantMapper">
+    <select id="findByQuery" resultType="Tenant" parameterType="TenantQuery">
+        SELECT t.*,s.mealName
+        FROM t_tenant t JOIN t_setmeal s ON t.setMealId=s.id
+        <include refid="whereSql"/>
+    </select>
+    <sql id="whereSql">
+        <where>
+            
+            <if test="keyword!=null and keyword!=''">
+                AND (companyName LIKE concat('%',#{keyword},'%')
+                OR  email LIKE concat('%',#{keyword},'%')
+                OR sysName LIKE concat('%',#{keyword},'%')
+                OR address LIKE concat('%',#{keyword},'%'))
+            </if>
+        </where>
+    </sql>
+
+    <select id="findAll" resultType="Tenant">
+        SELECT * FROM t_tenant
+    </select>
+
+    <select id="findOne" resultType="Tenant" parameterType="long">
+        SELECT * FROM t_tenant WHERE id=#{id}
+    </select>
+
+    <select id="query" resultType="Tenant" parameterType="TenantQuery">
+        select * from t_tenant
+    </select>
+
+    <insert id="save" parameterType="Tenant" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO t_tenant(companyName,password,companyTel,companyNum,email,sysName,registerTime,state,address,coordinate,logoUrl,setMealId,isPay)
+        values
+        (#{companyName},#{password},#{companyTel},#{companyNum},#{email},#{sysName},#{registerTime},#{state},#{address},#{coordinate},#{logoUrl},#{setMealId},#{isPay})
+    </insert>
+    <update id="update" parameterType="Tenant">
+        update t_tenant set
+        companyName=#{companyName},
+        password=#{password},
+        companyTel=#{companyTel},
+        email=#{email},
+        sysName=#{sysName},
+        registerTime=#{registerTime},
+        state=#{state},
+        address=#{address},
+        coordinate=#{coordinate},
+        logoUrl=#{logoUrl},
+        setMealId=#{setMealId},
+        isPay=#{isPay}
+        where id=#{id}
+    </update>
+    <delete id="delete" parameterType="long">
+        delete FROM t_tenant WHERE id=#{id}
+    </delete>
+</mapper>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.it.crm.mapper.AfterSaleMapper">
+    <resultMap id="allMap" type="AfterSale">
+        <id column="id" property="id"></id>
+        <result column="tenant_id" property="tenantId"/>
+        <result column="expire_time" property="expireTime"/>
+        <association property="customer" column="customer_id" select="findCustomerById" ></association>
+
+    </resultMap>
+    <insert id="save" >
+        INSERT  INTO t_after_sale (
+        sn,
+        customer_id,
+        expire_time,
+        tenant_id
+        )VALUE (
+        #{sn},
+        #{customer.id},
+        #{expireTime},
+        #{tenantId}
+        )
+    </insert>
+    <select id="findByQuery" resultMap="allMap">
+        SELECT * FROM t_after_sale WHERE tenant_id=#{tenantId}
+        <if test="name!=null and name!=''">
+            AND customer_id IN (SELECT  id FROM t_customer WHERE name LIKE concat('%',#{name},'%'))
+        </if>
+        <if test="beginTime!=null">
+            AND expire_time &gt;= #{beginTime}
+        </if>
+        <if test="endTime!=null">
+            AND expire_time &lt; #{endTime}
+        </if>
+    </select>
+
+    <select id="findCustomerById" resultType="Customer">
+        SELECT * FROM t_customer WHERE id=#{id}
+    </select>
+</mapper>

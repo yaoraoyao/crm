@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.it.crm.mapper.CustomerTransferMapper">
+
+    <insert id="save">
+        INSERT INTO t_cutomer_transfer (customer_id,transUser_id,transTime,oldSeller_id,
+        newSeller_id,transReason,tenant_id)
+        VALUES (#{customer.id},#{transUser.id},#{transTime},#{oldSeller.id},
+        #{newSeller.id},#{transReason},#{tenant.id});
+    </insert>
+
+
+    <!--嵌套查询单个-->
+    <resultMap id="CustomerTransferMap" type="CustomerTransfer">
+        <association property="customer" column="customer_id" select="findCustomer"/>
+        <association property="transUser" column="transUser_id" select="findEmployee"/>
+        <association property="oldSeller" column="oldSeller_id" select="findEmployee"/>
+        <association property="newSeller" column="newSeller_id" select="findEmployee"/>
+        <association property="tenant" column="tenant_id" select="findTenant"/>
+    </resultMap>
+    <select id="findOne" resultMap="CustomerTransferMap">
+        SELECT * FROM t_cutomer_transfer WHERE id = #{id}
+    </select>
+    <select id="findEmployee" resultType="Employee">
+        SELECT * FROM t_employee WHERE id = #{id}
+    </select>
+    <select id="findTenant" resultType="Tenant">
+        SELECT * FROM t_tenant WHERE id = #{id}
+    </select>
+    <select id="findCustomer" resultType="customer">
+        SELECT * FROM t_customer WHERE id = #{id}
+    </select>
+
+    <!--嵌套查询全部-->
+    <select id="findByQuery" resultMap="CustomerTransferMap">
+        SELECT * FROM t_cutomer_transfer WHERE tenant_id = #{tenantId}
+        <if test="beginDate != null">
+            AND transTime &gt;= #{beginDate}
+        </if>
+        <if test="endDate != null">
+            AND transTime &lt; #{endDate}
+        </if>
+        <if test="customerName != null and customerName != ''">
+            AND customer_id IN (SELECT  c.id FROM t_customer c WHERE c.tenant_id=#{tenantId} AND c.name LIKE concat('%',#{customerName},'%'))
+        </if>
+        <if test="traceUserName != null and traceUserName != ''">
+            AND transUser_id IN (SELECT  e.id FROM t_employee e WHERE e.tenant_id=#{tenantId} AND e.realname LIKE concat('%',#{traceUserName},'%'))
+        </if>
+        ORDER BY id DESC
+    </select>
+</mapper>

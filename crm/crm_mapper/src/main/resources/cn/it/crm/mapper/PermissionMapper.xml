@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.it.crm.mapper.PermissionMapper">
+    <resultMap id="menuMap" type="permission">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="url" column="url"/>
+        <result property="tenant_id" column="tenant_id"/>
+        <result property="menu_id" column="menu_id"/>
+        <result property="sn" column="sn"/>
+        <association property="menu"
+                     javaType="Menu"
+                     select="selectMenuById" column="menu_id">
+        </association>
+    </resultMap>
+    <select id="selectMenuById" resultType="Menu">
+        SELECT * FROM t_system_menu WHERE id=#{id}
+    </select>
+    <insert id="save">
+        INSERT INTO t_permission (name, url,tenant_id,menu_id, sn)
+        VALUES(
+            #{name},
+            #{url},
+            #{tenant_id},
+            #{menu_id},
+            #{sn}
+        )
+    </insert>
+    <delete id="delete">
+        DELETE
+        FROM
+            t_permission
+        WHERE
+            id = #{id};
+    </delete>
+    <select id="findOne" resultType="Permission">
+      SELECT
+            *
+        FROM
+            t_permission
+        WHERE
+            id = 2;
+    </select>
+    <update id="update">
+        UPDATE t_permission SET name = #{name}, url = #{url},tenant_id=#{tenant_id},menu_id=#{menu_id}, sn=#{sn}
+        WHERE id =  #{id}
+    </update>
+
+    <select id="findAll" resultMap="menuMap">
+        select * from t_permission
+    </select>
+
+    <select id="findByQuery" resultMap="menuMap">
+        select * from t_permission
+        <include refid="conditionSql" />
+    </select>
+
+    <sql id="conditionSql">
+        <where>
+            <if test="keyword != null and keyword != ''">
+                and name like concat("%",#{keyword},"%")
+            </if>
+        </where>
+    </sql>
+
+    <delete id="deletePermissions">
+        DELETE FROM t_role_permission WHERE permission_id=#{id}
+    </delete>
+
+    <select id="findPermissionByEmpId" resultType="permission">
+        SELECT
+        p.*
+        FROM t_permission p
+        JOIN t_role_permission rp ON p.id = rp.permission_id
+        JOIN t_role r on r.id = rp.role_id
+        JOIN t_employee_role er on er.role_id = r.id
+        WHERE er.employee_id = #{id}
+    </select>
+
+    <select id="selectOneByUserName" resultType="Employee">
+        SELECT * FROM employee WHERE name=#{username}
+    </select>
+
+</mapper>

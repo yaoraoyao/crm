@@ -1,0 +1,20 @@
+1：创建maven的web工程：目录结构处理
+
+2：spring环境搭建：
+  导入spring的jar；
+  spring配置文件：bean的管理
+  web.xml：监听和spring配置文件加载
+  测试环境：
+
+3:spring的配置：
+todo:
+
+4:spring+springmvc:
+  a：项目结构搭建
+  b:web.xml:
+  c:spring-mvc.xml:
+
+5：持久层：mybatis：
+导入依赖；
+配置文件
+业务代码

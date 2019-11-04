@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.it.crm.mapper.MenuMapper">
+    <resultMap id="menu" type="menu">
+        <result property="parentId" column="parent_id"/>
+    </resultMap>
+    <insert id="save" parameterType="menu">
+        INSERT INTO t_system_menu (sn, label, parent_id, url, intro)
+                VALUES (#{sn}, #{label}, #{parentId}, #{url},#{intro})
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM t_system_menu WHERE id = #{id}
+    </delete>
+
+    <update id="update" parameterType="menu">
+        UPDATE t_system_menu SET sn = #{sn}, label = #{label}, parent_id = #{parentId}, url = #{url}, intro = #{intro}
+        WHERE id =  #{id}
+    </update>
+
+    <select id="findOne" resultMap="menu">
+        select * from t_system_menu WHERE id = #{id}
+    </select>
+
+    <select id="findAll" resultMap="menu">
+        select * from t_system_menu
+    </select>
+
+    <select id="findByQuery" parameterType="MenuQuery" resultMap="menu">
+        select * from t_system_menu
+        <include refid="conditionSql" />
+        order by ${orderBy} ${order}
+    </select>
+
+    <select id="listMenusByUrl" resultMap="menu" parameterType="java.util.Set">
+        select * from t_system_menu
+        WHERE url IN 
+        <foreach collection="collection" item="url" open="(" close=")" separator=",">
+            #{url}
+        </foreach>
+    </select>
+
+    <sql id="conditionSql">
+        <where>
+            <if test="label != null and label != ''">
+                and label like concat("%",#{label},"%")
+            </if>
+        </where>
+    </sql>
+</mapper>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/basic_core/basic_core.iml" filepath="$PROJECT_DIR$/basic_core/basic_core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/basic_util/basic_util.iml" filepath="$PROJECT_DIR$/basic_util/basic_util.iml" />
+      <module fileurl="file://$PROJECT_DIR$/crm.iml" filepath="$PROJECT_DIR$/crm.iml" />
+      <module fileurl="file://$PROJECT_DIR$/crm_common/crm_common.iml" filepath="$PROJECT_DIR$/crm_common/crm_common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/crm_lucene/crm_lucene.iml" filepath="$PROJECT_DIR$/crm_lucene/crm_lucene.iml" />
+      <module fileurl="file://$PROJECT_DIR$/crm_mapper/crm_mapper.iml" filepath="$PROJECT_DIR$/crm_mapper/crm_mapper.iml" />
+      <module fileurl="file://$PROJECT_DIR$/crm_service/crm_service.iml" filepath="$PROJECT_DIR$/crm_service/crm_service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/crm_web/crm_web.iml" filepath="$PROJECT_DIR$/crm_web/crm_web.iml" />
+    </modules>
+  </component>
+</project>

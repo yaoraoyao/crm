@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.it.crm.mapper.RepairMapper">
+    <select id="findByQuery" resultType="Repair" parameterType="RepairQuery">
+        SELECT * FROM t_repair
+        <include refid="whereSql"/>
+    </select>
+    <sql id="whereSql">
+        <where>
+            <if test="keyword!=null and keyword!=''">
+                AND (customer LIKE concat('%',#{keyword},'%') OR tenant_id LIKE concat('%',#{keyword},'%'))
+            </if>
+            <if test="sn!=null and sn!=''">
+                AND (sn = #{sn})
+            </if>
+        </where>
+    </sql>
+    <select id="findAll" resultType="Repair">
+        SELECT * FROM t_repair
+    </select>
+    <select id="findOne" resultType="Repair" parameterType="long">
+        SELECT * FROM t_repair WHERE id=#{id}
+    </select>
+    <insert id="save" parameterType="Repair" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO t_repair(sn,warrantysn,customer,startTime,endTime,status,tenant_id) values
+        (#{sn},#{warrantysn},#{customer},#{startTime},#{endTime},#{status},#{tenant_id})
+    </insert>
+    <update id="update" parameterType="Contract">
+        update t_repair set
+        sn=#{sn},
+        warrantysn=#{warrantysn},
+        customer=#{customer},
+        startTime=#{startTime},
+        endTime=#{endTime},
+        status=#{status},
+        tenant_id=#{tenant_id}
+        where id=#{id}
+    </update>
+    <delete id="delete" parameterType="long">
+        delete FROM t_repair WHERE id=#{id}
+    </delete>
+</mapper>

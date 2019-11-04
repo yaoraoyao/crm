@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.it.crm.mapper.CustomerDevPlanMapper">
+    <insert id="save" parameterType="CustomerDevPlan">
+        INSERT INTO t_customer_dev_plan (planTime,planSubject,planDetails,planType_id,
+        potentialCustomer_id,inputUser_id,inputTime,tenant_id,state)
+        VALUES (#{planTime},#{planSubject},#{planDetails},#{planType.id},
+        #{customer.id},#{inputUser.id},#{inputTime},#{tenant.id},#{state});
+    </insert>
+
+    <delete id="delete" parameterType="long">
+        DELETE FROM t_customer_dev_plan WHERE id = #{id}
+    </delete>
+
+    <update id="update" parameterType="CustomerDevPlan">
+        UPDATE t_customer_dev_plan SET planTime=#{planTime},planSubject=#{planSubject},
+        planDetails=#{planDetails},planType_id=#{planType.id},potentialCustomer_id=#{customer.id},state=#{state}
+        WHERE id = #{id}
+    </update>
+
+    <!--嵌套查询单个-->
+    <resultMap id="CustomerDevPlanMap" type="CustomerDevPlan">
+        <association property="customer" column="potentialCustomer_id" select="findCustomer"/>
+        <association property="planType" column="planType_id" select="findOneSystemDictionaryItem"/>
+        <association property="inputUser" column="inputUser_id" select="findEmployee"/>
+        <association property="tenant" column="tenant_id" select="findTenant"/>
+    </resultMap>
+    <select id="findOne" resultMap="CustomerDevPlanMap">
+        SELECT * FROM t_customer_dev_plan WHERE id = #{id}
+    </select>
+    <select id="findEmployee" resultType="Employee">
+        SELECT * FROM t_employee WHERE id = #{id}
+    </select>
+    <select id="findTenant" resultType="Tenant">
+        SELECT * FROM t_tenant WHERE id = #{id}
+    </select>
+    <select id="findCustomer" resultType="Customer">
+        SELECT * FROM t_customer WHERE id = #{id}
+    </select>
+    <select id="findOneSystemDictionaryItem" resultType="SystemDictionaryItem">
+        SELECT * FROM t_systemdictionaryitem WHERE id = #{id}
+    </select>
+
+    <!--嵌套查询全部-->
+    <select id="findByQuery" resultMap="CustomerDevPlanMap" parameterType="CustomerDevPlanQuery">
+        SELECT * FROM t_customer_dev_plan WHERE tenant_id = #{tenantId}
+        <if test="beginDate != null">
+            AND planTime &gt;= #{beginDate}
+        </if>
+        <if test="endDate != null">
+            AND planTime &lt; #{endDate}
+        </if>
+        <if test="customerName != null and customerName != ''">
+            AND potentialCustomer_id IN (SELECT  c.id FROM t_customer c WHERE c.tenant_id=#{tenantId} AND c.name LIKE concat('%',#{customerName},'%'))
+        </if>
+        <if test="state != null">
+            AND state = #{state}
+        </if>
+        ORDER BY id DESC
+    </select>
+</mapper>

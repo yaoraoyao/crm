@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.it.crm.mapper.RepairItemMapper">
+    <select id="findByQuery" resultType="RepairItem" parameterType="RepairItemQuery">
+        SELECT * FROM t_repairitem
+        <include refid="whereSql"/>
+    </select>
+    <sql id="whereSql">
+        <where>
+            <if test="keyword!=null and keyword!=''">
+                AND (repairTime LIKE concat('%',#{keyword},'%') OR  solve LIKE concat('%',#{keyword},'%') OR warrantysn LIKE concat('%',#{keyword},'%'))
+            </if>
+
+        </where>
+    </sql>
+
+    <select id="findAll" resultType="RepairItem">
+        SELECT * FROM t_repairitem
+    </select>
+    <select id="findOne" resultType="RepairItem" parameterType="long">
+        SELECT * FROM t_repairitem WHERE id=#{id}
+    </select>
+    <insert id="save" parameterType="RepairItem" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO t_repairitem(repairTime,details,solve) values
+        (#{repairTime},#{details},#{solve})
+    </insert>
+    <!--saves(Contractitem[] params)-->
+    <insert id="saves" parameterType="RepairItem">
+        INSERT INTO t_repairitem(warrantysn,repairTime,details,solve) VALUES
+        <foreach collection="array" item="con" separator=",">
+            (#{con.warrantysn},#{con.repairTime},#{con.details},#{con.solve})
+        </foreach>
+    </insert>
+    <update id="update" parameterType="RepairItem">
+        update t_repairitem set
+        repairTime=#{repairTime},
+        details=#{details},
+        solve=#{solve}
+        where id=#{id}
+    </update>
+    <delete id="delete" parameterType="long">
+        delete FROM t_repairitem WHERE id=#{id}
+    </delete>
+</mapper>

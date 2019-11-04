@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.it.crm.mapper.OrderMapper">
+    <resultMap id="allMap" type="Order">
+        <id column="id" property="id"></id>
+        <result column="customer_id" property="customerId"/>
+        <result column="sign_time" property="signTime"/>
+        <result column="seller_id" property="sellerId"/>
+        <result column="tenant_id" property="tenantId"/>
+       <collection property="seller" select="sellerSql" ofType="Employee" column="seller_id"></collection>
+        <collection property="customer" select="customerSql" ofType="Customer" column="customer_id"></collection>
+    </resultMap>
+    <insert id="save" >
+        INSERT  INTO t_order(
+        sn,
+        customer_id,
+        sign_time,
+        seller_id,
+        sum,
+        intro,
+        tenant_id
+        )
+        VALUE(
+       <include refid="valueSql"/>
+        )
+    </insert>
+    <select id="findAll" resultMap="allMap">
+        SELECT * FROM t_order WHERE tenant_id=#{tenantId}
+    </select>
+    <select id="findByQuery" resultMap="allMap">
+         SELECT * FROM t_order WHERE tenant_id=#{tenantId}
+        <if test="name!=null and name!=''">
+           AND customer_id IN (SELECT  id FROM t_customer WHERE name LIKE concat('%',#{name},'%'))
+        </if>
+         <if test="beginTime!=null">
+             AND sign_time &gt;= #{beginTime}
+         </if>
+        <if test="endTime!=null">
+            AND sign_time &lt; #{endTime}
+        </if>
+    </select>
+    <select id="findOne" resultMap="allMap">
+        SELECT * FROM t_order WHERE id=#{id}
+    </select>
+    <delete id="delete" >
+        DELETE FROM t_order WHERE id=#{id}
+    </delete>
+    <update id="update" >
+        UPDATE t_order SET
+        sign_time=#{signTime},
+        intro=#{intro}
+        WHERE id=#{id}
+    </update>
+    
+    <select id="findCustomerByTelOrName" resultType="Customer">
+        SELECT * FROM t_customer WHERE name LIKE concat('%',#{name},'%') AND tenant_id=#{tenant.id}
+    </select>
+
+    <!--sql抽取-->
+    <sql id="valueSql">
+         #{sn},
+        #{customerId},
+        #{signTime},
+        #{sellerId},
+        #{sum},
+        #{intro},
+        #{tenantId}
+    </sql>
+    <select id="sellerSql" resultType="Employee">
+        SELECT *FROM t_employee WHERE id=#{id}
+    </select>
+    <select id="customerSql" resultType="Customer">
+        SELECT *FROM t_customer WHERE id=#{id}
+    </select>
+
+</mapper>

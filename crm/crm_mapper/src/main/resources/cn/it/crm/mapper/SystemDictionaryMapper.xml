@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.it.crm.mapper.SystemDictionaryMapper">
+    <resultMap id="systemDictionary" type="systemDictionary">
+        <result property="tenant_id" column="tenantId"/>
+    </resultMap>
+    <insert id="save" parameterType="systemDictionary">
+        INSERT INTO t_systemdictionary (sn, name, intro, state, tenant_id)
+                VALUES (#{sn}, #{name}, #{intro}, #{state}, #{tenantId})
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM t_systemdictionary WHERE id = #{id}
+    </delete>
+
+    <update id="update" parameterType="systemDictionary">
+        UPDATE t_systemdictionary
+        SET sn = #{sn}, name = #{name}, intro = #{intro}, state = #{state}
+        WHERE id =  #{id}
+    </update>
+
+    <select id="findOne" resultMap="systemDictionary">
+        select * from t_systemdictionary WHERE id = #{id}
+    </select>
+
+    <select id="findAll" resultMap="systemDictionary">
+        select * from t_systemdictionary
+    </select>
+
+    <select id="findByQuery" parameterType="cn.it.crm.query.SystemDictionaryQuery" resultMap="systemDictionary">
+        select * from t_systemdictionary
+        <include refid="conditionSql" />
+        order by ${orderBy} ${order}
+    </select>
+    <select id="findAllByTenantId" resultType="systemDictionary">
+        select * from t_systemdictionary
+        WHERE tenant_id = #{tenantId}
+    </select>
+
+    <sql id="conditionSql">
+        <where>
+            <if test="tenantId != null and tenantId > 0">
+                and tenant_id = #{tenantId}
+            </if>
+            <if test="name != null and name != ''">
+                and name like concat("%",#{name},"%")
+            </if>
+        </where>
+    </sql>
+</mapper>

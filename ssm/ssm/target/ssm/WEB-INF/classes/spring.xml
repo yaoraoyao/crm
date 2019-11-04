@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <context:property-placeholder  location="classpath:dbcp.properties"/>
+
+    <!--扫包-->
+    <context:component-scan base-package="cn.itsource.ssm.service"/>
+    
+    <!--dataSource-->
+    <!-- 配置连接池 -->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName" value="${jdbc.driverClassName}" />
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+    </bean>
+
+    <!--持久层：核心配置文件-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <!--DomainMapper.xml扫描       "                       -->
+        <property name="mapperLocations" value="classpath*:cn/itsource/ssm/mapper/*.xml" />
+        <!--别名配置-->
+        <property name="typeAliasesPackage" value="cn.itsource.ssm.domain,cn.itsource.ssm.query"/>
+
+    </bean>
+    <!--Mapper接口：
+    DepartmentMapper
+    EmployeMapper
+    如果有很多的Mapper接口，就需要配置很多：一劳永逸方式解决
+    <bean id="DepartmentMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="cn.itsource.ssm.mapper.DepartmentMapper" />
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+    </bean>
+
+    <bean id="EmployeMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="cn.itsource.ssm.mapper.EmployeMapper" />
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+    </bean>-->
+    <!--Mapper接口映射器配置-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="cn.itsource.ssm.mapper" />
+    </bean>
+
+
+    <!--事务-->
+    
+
+</beans>

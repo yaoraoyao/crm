@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.it.crm.mapper.RoleMapper">
+    <!--  嵌套查询 -->
+    <resultMap id="roleMap" type="Role">
+        <id property="id" column="id"/>
+        <result property="sn" column="sn"/>
+        <result property="name" column="name"/>
+        <result property="tenant_id" column="tenant_id"/>
+
+
+        <!--<collection property="rpermissions" ofType="Permission">-->
+        <!--<id property="id" column="pid"/>-->
+        <!--<result property="name" column="pname"/>-->
+        <!--<result property="resource" column="presource"/>-->
+        <!--</collection>-->
+
+        <collection property="rpermissions" ofType="Permission"
+                    select="getPermissionById" column="id" />
+
+    </resultMap>
+
+    <insert id="save" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO t_role (sn, name,tenant_id)
+        VALUES(
+            #{sn},
+            #{name},
+            #{tenant_id}
+        )
+    </insert>
+    <delete id="delete">
+        DELETE
+        FROM
+            t_role
+        WHERE
+            id = #{id};
+    </delete>
+    <select id="findOne" resultMap="roleMap">
+      SELECT
+            *
+        FROM
+            t_role
+        WHERE
+            id = 2;
+    </select>
+    <update id="update">
+        UPDATE t_role SET sn = #{sn}, name = #{name},tenant_id = #{tenant_id}
+        WHERE id =  #{id}
+    </update>
+
+    <select id="findByQuery" resultMap="roleMap">
+        SELECT
+        *
+        FROM
+        t_role
+        <include refid="conditionSql" />
+        order by ${orderBy} ${order}
+    </select>
+
+    <select id="getPermissionById" resultType="Permission" parameterType="long">
+        SELECT id,name FROM t_permission
+        WHERE id in (select rp.permission_id from t_role_permission rp where rp.role_id=#{id});
+    </select>
+
+
+    <!-- 根据角色id查询相关权限 -->
+    <select id="selectPermissionByRoleId" parameterType="long" resultType="Permission">
+        SELECT
+            p.*,r.*
+        FROM
+            t_role r
+        LEFT JOIN t_role_permission rp ON r.id = rp.role_id
+        LEFT JOIN t_permission p ON rp.permission_id = p.id
+        WHERE
+            r.id = #{id};
+    </select>
+
+    <sql id="conditionSql">
+        <where>
+            <if test="keyword != null and keyword != ''">
+                and name like concat("%",#{keyword},"%")
+                  </if>
+        </where>
+    </sql>
+
+    <insert id="savePerssions">
+        INSERT INTO t_role_permission (role_id, permission_id)
+        VALUES
+        <foreach collection="list" item="permission" separator=",">
+            (#{permission.roleId},#{permission.id})
+        </foreach>
+    </insert>
+
+    <delete id="deletePermissions" >
+        DELETE FROM t_role_permission
+        WHERE role_id = #{id}
+    </delete>
+
+</mapper>

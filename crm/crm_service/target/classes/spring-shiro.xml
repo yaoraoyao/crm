@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+">
+
+    <!-- 将SecurityManager对象交给Spring来管理 -->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <!-- set方法注入我们自定义的MyRealm -->
+        <property name="realm" ref="jpaRealm"/>
+    </bean>
+
+    <!-- 配置自定义的MyRealm -->
+    <bean id="jpaRealm" class="cn.it.crm.service.shiro.CRMRealm">
+        <!-- set方法注入credentialsMatcher属性【HashedCredentialsMatcher对象】 -->
+        <property name="credentialsMatcher">
+            <!-- 指定一个密码的加密规则 -->
+            <bean class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+                <!-- 加密方式 我们采用MD5 -->
+                <property name="hashAlgorithmName" value="MD5"/>
+                <!-- 加密次数【如果不设置这个属性，默认是加密1次】 -->
+                <property name="hashIterations" value="10"/>
+            </bean>
+        </property>
+    </bean>
+
+    <!-- Shiro框架内的所有对象的生命周期后处理器 -->
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+    <!-- 让Shiro支持注解的权限验证 -->
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
+          depends-on="lifecycleBeanPostProcessor"/>
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager"/>
+    </bean>
+
+    <!--
+        shiroFilter才是Spring中实现的真正的集成Shiro的过滤器【干实事的】
+        这个bean的id必须跟web.xml中的代理过滤器的名称保持一致！！！
+    -->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager"/>
+        <!-- 登录页面路径：当用户访问时未登录，就会自动跳转到这个页面 -->
+        <property name="loginUrl" value="/login"/>
+        <!-- 登录成功页面路径：登录成功时，就会自动跳转到这个页面 -->
+        <property name="successUrl" value="/index"/>
+        <!-- 无权限时页面路径：当用户访问时没有访问权限，就会自动跳转到这个页面 -->
+        <property name="unauthorizedUrl" value="/unauthorized.jsp"/>
+        <!-- 配置哪些请求需要登录认证，哪些请求不需要登录认证，哪些请求需要权限认证 -->
+        <property name="filterChainDefinitionMap" ref="filterChainDefinition" />
+        <property name="filters" ref="myFiltersMap"/>
+    </bean>
+
+    <!-- 实例工厂方式配置 -->
+    <bean id="filterChainDefinitionBuilder" class="cn.it.crm.service.shiro.FilterChainDefinitionMapFactory" />
+    <bean id="filterChainDefinition" factory-bean="filterChainDefinitionBuilder" factory-method="build"/>
+
+    <bean id="myFiltersBuilder" class="cn.it.crm.service.shiro.MyFiltersMapBuilder"/>
+    <bean id="myFiltersMap" factory-bean="myFiltersBuilder" factory-method="buildMyFilters"/>
+</beans>

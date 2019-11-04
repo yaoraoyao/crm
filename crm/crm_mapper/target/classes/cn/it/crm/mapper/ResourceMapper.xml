@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.it.crm.mapper.ResourceMapper">
+    <insert id="save">
+        INSERT INTO t_resource (name, url)
+        VALUES
+            (
+            #{name},
+        #{url}
+        )
+    </insert>
+    <delete id="delete">
+        DELETE
+        FROM
+            t_resource
+        WHERE
+            id = #{id};
+    </delete>
+    <select id="findOne" resultType="Resource">
+      SELECT
+            *
+        FROM
+            t_resource
+        WHERE
+            id = 2;
+    </select>
+    <update id="update">
+        UPDATE t_resource SET name = #{name}, url = #{url}
+        WHERE id =  #{id}
+    </update>
+    <select id="findByQuery" resultType="resource">
+        select * from t_resource
+        <include refid="conditionSql" />
+        order by ${orderBy} ${order}
+    </select>
+    <sql id="conditionSql">
+        <where>
+            <if test="keyword != null and keyword != ''">
+                and name like concat("%",#{keyword},"%")
+            </if>
+        </where>
+    </sql>
+
+</mapper>

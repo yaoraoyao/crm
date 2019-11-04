@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.it.crm.mapper.DepartmentMapper">
+    <resultMap id="map" type="Department">
+        <id column="id" property="id"></id>
+        <result property="sn" column="sn"></result>
+        <result property="name" column="name"></result>
+        <result property="manager_id" column="manager_id"></result>
+        <result property="state" column="state"></result>
+        <result property="tenant_id" column="tenant_id"></result>
+        <result property="parent_id" column="parent_id"></result>
+        <association property="tenant"
+                     javaType="cn.it.crm.domain.Tenant"
+                     select="selectTenantById" column="tenant_id">
+        </association>
+        <association property="employee"
+                     javaType="cn.it.crm.domain.Employee"
+                     select="selectEmployeeById" column="manager_id">
+        </association>
+        <collection property="childrens"
+                    ofType="cn.it.crm.domain.Department"
+                    select="findOne" column="id">
+        </collection>
+        <collection property="parent"
+                    ofType="cn.it.crm.domain.Department"
+                    select="selectparentById" column="parent_id">
+        </collection>
+    </resultMap>
+    <insert id="save" parameterType="Department">
+        INSERT INTO crm.t_department (sn, name, manager_id,parent_id,state,tenant_id)
+                VALUES (#{sn}, #{name}, #{manager_id},#{parent_id},#{state},#{tenant_id})
+    </insert>
+
+    <delete id="delete" parameterType="long">
+        DELETE FROM crm.t_department WHERE id = #{id}
+    </delete>
+
+    <update id="update" parameterType="employee">
+        UPDATE crm.t_department SET sn = #{sn}, name = #{name}, manager_id = #{manager_id},parent_id = #{parent_id},state=#{state},tenant_id=#{tenant_id}
+        WHERE id =  #{id}
+    </update>
+
+    <select id="findOne" resultType="Department">
+       select * from crm.t_department WHERE id = #{id}
+
+</select>
+
+    <select id="findAll" resultType="Department">
+        select * from crm.t_department
+    </select>
+
+    <select id="selectTenantById" resultType="Tenant">
+        select t.companyName companyName from crm.t_tenant t where id=#{id}
+    </select>
+
+    <select id="selectEmployeeById" resultType="Employee">
+        SELECT e.realname realname FROM crm.t_employee e WHERE id=#{id}
+    </select>
+
+    <select id="selectparentById" resultType="Department">
+        select * from crm.t_department where id=#{parent_id}
+    </select>
+
+
+    <!--<select id="selectparentById"  resultType="Department">-->
+        <!--select * from t_department-->
+        <!--<include refid="whereSql"/>-->
+    <!--</select>-->
+
+    <!--<sql id="whereSql">-->
+        <!--<where>-->
+            <!--<if test="key!=null and key!=''">-->
+                <!--and  ( name like  concat('%',#{key},'%')  or dname like  concat('%',#{key},'%') )-->
+            <!--</if>-->
+            <!--<if test="parent != null and parent != ''">-->
+                <!--and parent != ''-->
+            <!--</if>-->
+        <!--</where>-->
+    <!--</sql>-->
+
+
+    <select id="findByQuery" resultMap="map">
+        select * from crm.t_department
+        <include refid="Sql"/>
+        order by ${orderBy} ${order}
+    </select>
+
+    <sql id="Sql">
+        <where>
+            <if test="name != null and name != ''">
+                and name like concat("%",#{name},"%")
+            </if>
+            <if test="sn != null and sn != ''">
+                and sn like concat("%",#{sn},"%")
+            </if>
+            <if test="manager != null and manager != ''">
+                and manager like concat("%",#{manager},"%")
+            </if>
+        </where>
+    </sql>
+</mapper>

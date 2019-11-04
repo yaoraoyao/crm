@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.it.crm.mapper.ContractItemMapper">
+    <resultMap id="allMap" type="ContractItem">
+        <id column="id" property="id"></id>
+        <result column="contract_id" property="contractId"></result>
+        <result column="pay_time" property="payTime"></result>
+        <result column="money" property="money"></result>
+        <result column="scale" property="scale"></result>
+        <result column="is_payment" property="isPayment"></result>
+    </resultMap>
+    <select id="findListByCId" resultMap="allMap">
+      SELECT *FROM t_contract_item WHERE contract_id=#{id}
+    </select>
+    <insert id="save" >
+        INSERT  INTO t_contract_item (
+        contract_id,
+        pay_time,
+        money,
+        scale,
+        is_payment
+        )VALUE (
+            #{ contractId},
+            #{ payTime},
+            #{money},
+            #{scale},
+            #{isPayment}
+        )
+
+
+    </insert>
+    <update id="update">
+        UPDATE  t_contract_item SET is_payment=true WHERE  id=#{id}
+    </update>
+
+</mapper>

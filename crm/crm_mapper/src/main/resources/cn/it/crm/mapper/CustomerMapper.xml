@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.it.crm.mapper.CustomerMapper">
+    <insert id="save" parameterType="Customer">
+        INSERT INTO t_customer (name,age,gender,tel,email,qq,wechat,seller_id,job_id,
+        salaryLevel_id,customerSource_id,inputUser_id,inputTime,successRate,state,tenant_id)
+        VALUES (#{name},#{age},#{gender},#{tel},#{email},#{qq},#{wechat},#{seller.id},#{job.id},
+        #{salaryLevel.id},#{customerSource.id},#{inputUser.id},#{inputTime},#{successRate},#{state},#{tenant.id});
+    </insert>
+
+    <update id="update" parameterType="Customer">
+        UPDATE t_customer SET name=#{name},age=#{age},gender=#{gender},tel=#{tel},email=#{email},qq=#{qq},wechat=#{wechat},seller_id=#{seller.id},job_id=#{job.id},
+        salaryLevel_id=#{salaryLevel.id},customerSource_id=#{customerSource.id},successRate=#{successRate},state=#{state}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateSeller" parameterType="CustomerQuery">
+        UPDATE t_customer
+        <set>
+            <if test="sellerId != null">
+                seller_id = #{sellerId},
+            </if>
+            <if test="states != null">
+                state = -1
+            </if>
+        </set>
+        WHERE id in (#{ids})
+    </update>
+
+    <delete id="delete" parameterType="long">
+        DELETE FROM t_customer WHERE id = #{id}
+    </delete>
+
+    <!--嵌套查询单个-->
+    <resultMap id="CustomerMap" type="Customer">
+        <association property="seller" column="seller_id" select="findEmployee" javaType="Employee"/>
+        <association property="job" column="job_id" select="findOneSystemDictionaryItem" javaType="SystemDictionaryItem"/>
+        <association property="salaryLevel" column="salaryLevel_id" select="findOneSystemDictionaryItem" javaType="SystemDictionaryItem"/>
+        <association property="customerSource" column="customerSource_id" select="findOneSystemDictionaryItem" javaType="SystemDictionaryItem"/>
+        <association property="inputUser" column="inputUser_id" select="findEmployee" javaType="Employee"/>
+        <association property="tenant" column="tenant_id" select="findTenant" javaType="Tenant"/>
+    </resultMap>
+    <select id="findOne" resultMap="CustomerMap">
+        SELECT * FROM t_customer WHERE id = #{id}
+    </select>
+    <select id="findEmployee" resultType="Employee">
+        SELECT * FROM t_employee t WHERE id = #{id}
+    </select>
+    <select id="findTenant" resultType="Tenant">
+        SELECT * FROM t_tenant t WHERE id = #{id}
+    </select>
+    <select id="findOneSystemDictionaryItem" resultType="SystemDictionaryItem">
+        SELECT * FROM t_systemdictionaryitem t WHERE id = #{id}
+    </select>
+
+    <!--嵌套查询全部-->
+    <select id="findByQuery" resultMap="CustomerMap">
+        SELECT * FROM t_customer WHERE tenant_id = #{tenantId}
+        <if test="name != null and name != ''">
+            AND name LIKE concat('%',#{name},'%')
+        </if>
+        <if test="state != null and state != 10">
+            AND state = #{state}
+        </if>
+        <if test="state == 10">
+            AND state = 0 AND id NOT IN (SELECT c.potentialCustomer_id FROM t_customer_dev_plan c WHERE
+            c.tenant_id=#{tenantId}
+            <if test="id != null">
+                AND  c.potentialCustomer_id != #{id}
+            </if>
+            AND c.state = 0
+            )
+        </if>
+        <if test="seller != null">
+            <choose>
+                <when test="seller == ''">
+                    AND seller_id IS NULL
+                </when>
+                <otherwise>
+                    AND seller_id IN (SELECT e.id FROM t_employee e WHERE e.tenant_id=#{tenantId} AND e.realname LIKE concat('%',#{seller},'%'))
+                </otherwise>
+            </choose>
+        </if>
+        ORDER BY id DESC
+    </select>
+
+    <select id="findAll" resultType="Customer">
+        SELECT * FROM t_customer
+    </select>
+</mapper>
